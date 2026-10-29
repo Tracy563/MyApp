@@ -1,6 +1,6 @@
 package com.example.myapp
 
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -14,17 +14,17 @@ class MainActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = GridLayoutManager(this, 4)
 
-        val pm: PackageManager = packageManager
-        val intent = pm.getLaunchIntentForPackage(packageName)
-        val apps = pm.queryIntentActivities(
-            android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
-                addCategory(android.content.Intent.CATEGORY_LAUNCHER)
-            }, 0
-        ).map {
-            val name = it.loadLabel(pm).toString()
-            val icon = it.activityInfo.loadIcon(pm)
-            // we need drawable res, so we will use icon directly in adapter
-            AppItem(name, it.activityInfo.packageName, it.activityInfo.name)
+        val pm = packageManager
+        val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+
+        val apps = pm.queryIntentActivities(mainIntent, 0).map {
+            AppInfo(
+                it.loadLabel(pm).toString(),
+                it.activityInfo.packageName,
+                it.loadIcon(pm)
+            )
         }.sortedBy { it.name.lowercase() }
 
         recyclerView.adapter = AppAdapter(apps, pm)
